@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8">
-  <title>RPG</title>
+  <title>HTML RPG</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -14,10 +14,18 @@
   <div id="jobs"></div>
 </div>
 
-<div id="battle" style="display:none;">
-  <h2>전투</h2>
-  <p id="status"></p>
-  <button onclick="attack()">공격</button>
+<div id="game" style="display:none;">
+  <h2 id="player-info"></h2>
+
+  <div id="monster-area"></div>
+
+  <div id="actions">
+    <button onclick="attack()">기본 공격</button>
+    <button onclick="useSkill()">스킬</button>
+    <button onclick="pvp()">PVP 도전</button>
+  </div>
+
+  <p id="log"></p>
 </div>
 
 <script src="main.js"></script>
