@@ -3,9 +3,23 @@
 <head>
   <meta charset="UTF-8">
   <title>RPG</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <h1>RPG 게임</h1>
-  <p>정상적으로 실행 중입니다.</p>
+
+<h1>HTML RPG</h1>
+
+<div id="job-select">
+  <h2>직업 선택</h2>
+  <div id="jobs"></div>
+</div>
+
+<div id="battle" style="display:none;">
+  <h2>전투</h2>
+  <p id="status"></p>
+  <button onclick="attack()">공격</button>
+</div>
+
+<script src="main.js"></script>
 </body>
 </html>
