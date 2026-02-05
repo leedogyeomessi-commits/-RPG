@@ -1,84 +1,162 @@
 // =======================
-// 직업 데이터 (9개)
+// 직업 9개 + 스킬
 // =======================
 const jobs = {
-  warrior:   { name: "전사", hp: 140, atk: 14 },
-  knight:    { name: "기사", hp: 160, atk: 11 },
-  berserker: { name: "광전사", hp: 120, atk: 20 },
+  warrior: { name:"전사", hp:150, atk:14, skill:2 },
+  knight: { name:"기사", hp:170, atk:11, skill:1.5 },
+  berserker:{ name:"광전사", hp:130, atk:20, skill:3 },
 
-  mage:      { name: "마법사", hp: 85, atk: 27 },
-  sorcerer:  { name: "주술사", hp: 95, atk: 23 },
-  necromancer:{ name: "강령술사", hp: 90, atk: 25 },
+  mage:{ name:"마법사", hp:90, atk:26, skill:3 },
+  sorcerer:{ name:"주술사", hp:100, atk:22, skill:2.5 },
+  necromancer:{ name:"강령술사", hp:95, atk:24, skill:2.8 },
 
-  rogue:     { name: "도적", hp: 100, atk: 18 },
-  archer:    { name: "궁수", hp: 105, atk: 17 },
-  monk:      { name: "수도사", hp: 125, atk: 16 }
+  rogue:{ name:"도적", hp:105, atk:18, skill:2 },
+  archer:{ name:"궁수", hp:110, atk:17, skill:2 },
+  monk:{ name:"수도사", hp:130, atk:16, skill:1.8 }
 };
 
 // =======================
-// 플레이어 / 몬스터
+// 몬스터 여러 마리
 // =======================
+const monsters = [
+  { name:"고블린", hp:60, atk:8, exp:20 },
+  { name:"오크", hp:100, atk:14, exp:40 },
+  { name:"트롤", hp:160, atk:18, exp:70 }
+];
+
 let player = {};
-let monster = {
-  name: "고블린",
-  hp: 70,
-  atk: 10
-};
+let monster = {};
+let skillCooldown = 0;
 
 // =======================
 // 직업 버튼 생성
 // =======================
 const jobsDiv = document.getElementById("jobs");
-
-for (const key in jobs) {
-  const btn = document.createElement("button");
-  btn.innerText = jobs[key].name;
-  btn.onclick = () => selectJob(key);
-  jobsDiv.appendChild(btn);
+for (let key in jobs) {
+  const b = document.createElement("button");
+  b.innerText = jobs[key].name;
+  b.onclick = () => selectJob(key);
+  jobsDiv.appendChild(b);
 }
 
 // =======================
 // 직업 선택
 // =======================
-function selectJob(jobKey) {
-  const job = jobs[jobKey];
+function selectJob(key) {
+  const j = jobs[key];
   player = {
-    name: job.name,
-    hp: job.hp,
-    atk: job.atk
+    job:key,
+    name:j.name,
+    maxHp:j.hp,
+    hp:j.hp,
+    atk:j.atk,
+    skill:j.skill,
+    level:1,
+    exp:0
   };
 
-  document.getElementById("job-select").style.display = "none";
-  document.getElementById("battle").style.display = "block";
-  updateStatus();
+  document.getElementById("job-select").style.display="none";
+  document.getElementById("game").style.display="block";
+  spawnMonster();
+  updateUI();
 }
 
 // =======================
-// 전투 로직
+// 몬스터 생성
+// =======================
+function spawnMonster() {
+  monster = JSON.parse(JSON.stringify(
+    monsters[Math.floor(Math.random()*monsters.length)]
+  ));
+  log(`야생의 ${monster.name} 등장!`);
+}
+
+// =======================
+// 전투
 // =======================
 function attack() {
   monster.hp -= player.atk;
+  log(`${player.name} 공격!`);
 
   if (monster.hp > 0) {
     player.hp -= monster.atk;
+    log(`${monster.name} 반격!`);
+  } else {
+    win();
   }
-
-  checkResult();
-  updateStatus();
+  checkDeath();
+  updateUI();
 }
 
-function updateStatus() {
-  document.getElementById("status").innerText =
-    `${player.name} HP: ${player.hp} | ${monster.name} HP: ${monster.hp}`;
+function useSkill() {
+  if (skillCooldown > 0) {
+    log("스킬 쿨타임 중");
+    return;
+  }
+  monster.hp -= Math.floor(player.atk * player.skill);
+  skillCooldown = 3;
+  log("스킬 사용!");
+
+  if (monster.hp <= 0) win();
+  updateUI();
 }
 
-function checkResult() {
+function win() {
+  log(`${monster.name} 처치!`);
+  gainExp(monster.exp);
+  spawnMonster();
+}
+
+function checkDeath() {
   if (player.hp <= 0) {
-    alert("패배했습니다.");
+    alert("사망했습니다.");
     location.reload();
   }
-  if (monster.hp <= 0) {
-    alert("승리했습니다!");
-    location.reload();
+}
+
+// =======================
+// 성장
+// =======================
+function gainExp(exp) {
+  player.exp += exp;
+  if (player.exp >= player.level * 50) {
+    player.exp = 0;
+    player.level++;
+    player.maxHp += 10;
+    player.atk += 2;
+    player.hp = player.maxHp;
+    log(`레벨 업! Lv.${player.level}`);
   }
+}
+
+// =======================
+// PVP (비동기 기본)
+// =======================
+function pvp() {
+  const enemyAtk = Math.floor(Math.random()*20)+10;
+  log("PVP 전투 시작!");
+
+  if (player.atk > enemyAtk) {
+    log("PVP 승리!");
+    gainExp(30);
+  } else {
+    log("PVP 패배...");
+    player.hp -= 20;
+  }
+  updateUI();
+}
+
+// =======================
+// UI
+// =======================
+function updateUI() {
+  document.getElementById("player-info").innerText =
+    `${player.name} Lv.${player.level} HP ${player.hp}/${player.maxHp}`;
+  document.getElementById("monster-area").innerText =
+    `${monster.name} HP ${monster.hp}`;
+  if (skillCooldown > 0) skillCooldown--;
+}
+
+function log(text) {
+  document.getElementById("log").innerText = text;
 }
