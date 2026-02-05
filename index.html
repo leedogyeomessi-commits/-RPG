@@ -2,12 +2,12 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8">
-  <title>HTML RPG</title>
+  <title>Fantasy Battle RPG</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<h1>HTML RPG</h1>
+<h1>Fantasy Battle RPG</h1>
 
 <div id="job-select">
   <h2>직업 선택</h2>
@@ -17,12 +17,17 @@
 <div id="game" style="display:none;">
   <h2 id="player-info"></h2>
 
-  <div id="monster-area"></div>
+  <div id="battle">
+    <div id="player" class="character">🧑‍⚔️</div>
+    <div id="monster" class="character">👾</div>
+  </div>
+
+  <div id="monster-info"></div>
 
   <div id="actions">
     <button onclick="attack()">기본 공격</button>
     <button onclick="useSkill()">스킬</button>
-    <button onclick="pvp()">PVP 도전</button>
+    <button onclick="pvp()">PVP</button>
   </div>
 
   <p id="log"></p>
